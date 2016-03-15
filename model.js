@@ -5,8 +5,15 @@ var model = {
     this.height = 20;
     this.width = 10;
 
-    this.addBlock(4, 15);
+    this.addBlock(1, 18);
+    this.addBlock(2, 18);
+    this.addBlock(3, 18);
     this.addBlock(4, 18);
+    this.addBlock(5, 18);
+    this.addBlock(6, 18);
+    this.addBlock(7, 18);
+    this.addBlock(8, 18);
+    this.addBlock(9, 18);
     this.addBlock(0, 0);
   },
 
@@ -18,13 +25,20 @@ var model = {
   },
 
   tic: function() {
+    var bottomed = false;
+
     if (this.activeBlock.reachedBottom) {
-      this.addBlock(0, 5);
+      this.addBlock(5, 0);
+      bottomed = true;
     }
 
     this.blocks.forEach(function(block) {
       block.tic();
     });
+
+    if (bottomed) {
+      this.checkClear();
+    }
   },
 
   isPathBlocked: function(block, dir) {
@@ -37,13 +51,29 @@ var model = {
 
   checkClear: function() {
     var rows = new Array(this.height);
-    _(this.width).times(function() {
-      rows.push([]);
+    var that = this;
+
+    _(this.height).times(function(i) {
+      rows[i] = [];
     })
 
-    blocks.forEach(function(block) {
-      rows[block.y]
+    this.blocks.forEach(function(block) {
+      rows[block.y].push('1')
     });
+
+    var fullRows = [];
+    rows.forEach(function(row, index) {
+      if (row.length == that.width) {
+        fullRows.push(index);
+      }
+    })
+
+    fullRows.forEach(function(index) {
+      that.blocks = _.reject(that.blocks, function(block) { return block.y == index});
+    })
+  },
+
+  destroyBlocks: function(blocks) {
   },
 
   nextCoordinate: function(coord, dir) {
