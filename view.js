@@ -3,12 +3,6 @@ var view = {
 
   init: function() {
     this.setup();
-    var two = this.two;
-    var rect = two.makeRectangle(this.pixelWidth() / 2, this.pixelHeight() / 2, this.pixelWidth(), this.pixelHeight());
-    rect.fill = 'rgb(0, 200, 255)';
-    rect.noStroke();
-    rect.opacity = 0.75;
-    two.update();
     this.render();
   },
 
@@ -27,12 +21,22 @@ var view = {
     return controller.getHeight() * this.squareSize;
   },
 
+  renderBackground: function() {
+    var two = this.two;
+    var rect = two.makeRectangle(this.pixelWidth() / 2, this.pixelHeight() / 2, this.pixelWidth(), this.pixelHeight());
+    rect.fill = 'rgb(0, 200, 255)';
+    rect.noStroke();
+    rect.opacity = 0.75;
+  },
+
   render: function() {
     var blocks = controller.getBlocks();
     var that = this;
 
-    blocks.forEach(function(block){
+    this.two.clear();
 
+    this.renderBackground();
+    blocks.forEach(function(block){
       var x = block.x * that.squareSize + (that.squareSize / 2);
       var y = block.y * that.squareSize + (that.squareSize / 2);
       var square = that.two.makeRectangle(x, y, that.squareSize, that.squareSize);
