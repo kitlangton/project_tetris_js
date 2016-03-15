@@ -14,7 +14,7 @@ var model = {
     this.addBlock(7, 18);
     this.addBlock(8, 18);
     this.addBlock(9, 18);
-    this.addBlock(0, 0);
+    this.addBlock(5, 0);
   },
 
   addBlock: function(x, y) {
