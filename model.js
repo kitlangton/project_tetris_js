@@ -7,16 +7,21 @@ var model = {
 
     this.addBlock(4, 15);
     this.addBlock(4, 18);
-    this.activeBlock = this.addBlock(0, 0);
+    this.addBlock(0, 0);
   },
 
   addBlock: function(x, y) {
     var block = new Block(x, y);
     this.blocks.push(block);
+    this.activeBlock = block;
     return block;
   },
 
   tic: function() {
+    if (this.activeBlock.reachedBottom) {
+      this.addBlock(0, 5);
+    }
+
     this.blocks.forEach(function(block) {
       block.tic();
     });
@@ -30,6 +35,17 @@ var model = {
     return false
   },
 
+  checkClear: function() {
+    var rows = new Array(this.height);
+    _(this.width).times(function() {
+      rows.push([]);
+    })
+
+    blocks.forEach(function(block) {
+      rows[block.y]
+    });
+  },
+
   nextCoordinate: function(coord, dir) {
     if (dir == 'down') {
       return {x: coord.x, y: coord.y + 1};
@@ -41,7 +57,7 @@ var model = {
   },
 
   coordIsOutOfBounds: function(coord) {
-    return coord.x < 0 || coord.x >= this.width || coord.y < 0 || coord.y >= this.height;
+    return coord.x < 0 || coord.x >= this.width || coord.y >= this.height;
   },
 
   coordIsOccupied: function(coord) {
@@ -60,30 +76,58 @@ var model = {
 
   moveLeft: function() {
     this.activeBlock.moveLeft();
-  }
+  },
+
+  moveDown: function() {
+    this.activeBlock.moveDown();
+  },
+
+  drop: function() {
+    this.activeBlock.drop();
+  },
 }
 
 function Block(x, y) {
   this.x = x;
   this.y = y;
+  this.reachedBottom = false;
 
   this.tic = function() {
+    this.checkBottom();
+    this.moveDown();
+  };
+
+  this.moveDown = function() {
     if (!model.isPathBlocked(this, 'down')) {
       this.y += 1;
     }
   };
 
+  this.checkBottom = function() {
+    if (!model.isPathBlocked(this, 'down')) {
+      this.reachedBottom = false;
+    } else {
+      this.reachedBottom = true;
+    }
+  }
 
   this.moveRight = function() {
     if (!model.isPathBlocked(this, 'right')) {
       this.x += 1;
     }
+    this.checkBottom();
   };
-
 
   this.moveLeft = function() {
     if (!model.isPathBlocked(this, 'left')) {
       this.x -= 1;
+    }
+    this.checkBottom();
+  };
+
+  this.drop = function() {
+    while (!model.isPathBlocked(this, 'down')) {
+      this.moveDown();
     }
   };
 }

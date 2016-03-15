@@ -12,6 +12,14 @@ var controller = {
       model.moveLeft();
       view.render();
     });
+    key('down', function() {
+      model.moveDown();
+      view.render();
+    });
+    key('space', function() {
+      model.drop();
+      view.render();
+    });
   },
 
   loop: function() {
