@@ -1,6 +1,7 @@
 var model = {
   blocks: [],
   pieces: [],
+  shapes: ['leftL', 'rightL', 't', 'line', 'square', 'leftS', 'rightS'],
 
   init: function() {
     this.height = 20;
@@ -129,11 +130,73 @@ var model = {
 
 function Piece(x, y) {
   this.blocks = [];
+  this.color = null;
 
-  this.blocks.push(new Block(x, y, this));
-  this.blocks.push(new Block(x, y + 1, this));
-  this.blocks.push(new Block(x, y + 2, this));
-  this.blocks.push(new Block(x + 1, y + 2, this));
+  var shape = model.shapes[Math.floor(Math.random()* 7)];
+
+
+  switch(shape){
+    case 'rightL':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x, y + 1, this));
+      this.blocks.push(new Block(x, y + 2, this));
+      this.blocks.push(new Block(x + 1, y + 2, this));
+
+      this.color = "#e99f0c";
+      break;
+    case 'leftL':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x, y + 1, this));
+      this.blocks.push(new Block(x, y + 2, this));
+      this.blocks.push(new Block(x - 1, y + 2, this));
+      this.color = "#88c431";
+      break;
+    case 't':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x + 1, y, this));
+      this.blocks.push(new Block(x + 1, y + 1, this));
+      this.blocks.push(new Block(x + 2, y, this));
+      this.color = "#c431a3";
+      break;
+    case 'line':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x + 1, y, this));
+      this.blocks.push(new Block(x + 2, y, this));
+      this.blocks.push(new Block(x + 3, y, this));
+      this.color = "#580dc5";
+      break;
+    case 'square':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x + 1, y, this));
+      this.blocks.push(new Block(x, y + 1, this));
+      this.blocks.push(new Block(x + 1, y + 1, this));
+      this.color = "#151919";
+      break;
+    case 'leftS':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x, y + 1, this));
+      this.blocks.push(new Block(x + 1, y + 1, this));
+      this.blocks.push(new Block(x + 1, y + 2, this));
+      this.color = "#cfed21";
+      break;
+    case 'rightS':
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x, y - 1, this));
+      this.blocks.push(new Block(x + 1, y - 1, this));
+      this.blocks.push(new Block(x + 1, y - 2, this));
+      this.color = "#214541";
+      break;
+    default:
+      this.blocks.push(new Block(x, y, this));
+      this.blocks.push(new Block(x, y - 1, this));
+      this.blocks.push(new Block(x + 1, y - 1, this));
+      this.blocks.push(new Block(x + 1, y - 2, this));
+      this.color = "#214541";
+      break;
+
+  };
+
+
 
   this.center = this.blocks[2];
 

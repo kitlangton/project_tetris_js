@@ -40,7 +40,7 @@ var view = {
       var x = block.x * that.squareSize + (that.squareSize / 2);
       var y = block.y * that.squareSize + (that.squareSize / 2);
       var square = that.two.makeRectangle(x, y, that.squareSize, that.squareSize);
-      square.fill = 'rgb(191, 34, 34)'
+      square.fill = block.piece.color;
     } )
 
     this.two.update();
