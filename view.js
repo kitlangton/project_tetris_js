@@ -8,9 +8,8 @@ var view = {
     rect.fill = 'rgb(0, 200, 255)';
     rect.noStroke();
     rect.opacity = 0.75;
-    var circle = two.makeCircle(82, 100, 50);
-    circle.fill = '#FF8000';
     two.update();
+    this.render();
   },
 
   setup: function() {
@@ -27,5 +26,20 @@ var view = {
   pixelHeight: function() {
     return controller.getHeight() * this.squareSize;
   },
+
+  render: function() {
+    var blocks = controller.getBlocks();
+    var that = this;
+
+    blocks.forEach(function(block){
+
+      var x = block.x * that.squareSize + (that.squareSize / 2);
+      var y = block.y * that.squareSize + (that.squareSize / 2);
+      var square = that.two.makeRectangle(x, y, that.squareSize, that.squareSize);
+      square.fill = 'rgb(191, 34, 34)'
+    } )
+
+    this.two.update();
+  }
 
 }

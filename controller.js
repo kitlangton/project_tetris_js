@@ -11,4 +11,8 @@ var controller = {
   getWidth: function() {
     return model.width;
   },
+
+  getBlocks: function() {
+    return model.blocks;
+  }
 }
