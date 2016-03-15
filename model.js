@@ -43,7 +43,7 @@ var model = {
 
   isPathBlocked: function(block, dir) {
     var coord = this.nextCoordinate(block, dir);
-    if (this.coordIsOutOfBounds(coord) || this.coordIsOccupied(coord)) {
+    if (this.coordIsOutOfBounds(coord) || this.coordIsOccupied(coord, block.piece)) {
       return true
     }
     return false
@@ -90,9 +90,12 @@ var model = {
     return coord.x < 0 || coord.x >= this.width || coord.y >= this.height;
   },
 
-  coordIsOccupied: function(coord) {
+  coordIsOccupied: function(coord, piece) {
     var occupied = false;
     this.blocks.forEach(function(block){
+      if (block.piece == piece) {
+        return; 
+      } 
       if (block.x == coord.x && block.y == coord.y) {
         occupied = true;
       }
@@ -117,9 +120,67 @@ var model = {
   },
 }
 
-function Block(x, y) {
+function Piece(x, y) {
+
+  this.blocks = [];
+
+  this.blocks.push(new Block(x, y, this));
+  this.blocks.push(new Block(x, y + 1, this));
+  this.blocks.push(new Block(x, y + 2, this));
+  this.blocks.push(new Block(x + 1, y + 2, this));
+
+
+  this.tic = function() {
+    this.checkBottom();
+    this.moveDown();
+  };
+
+  this.moveDown = function() {
+    if (!model.isPathBlocked(this, 'down')) {
+      this.blocks.forEach(function(block){
+        block.moveDown();
+      } )
+    }
+  };
+
+  this.checkBottom = function() {
+    if (!model.isPathBlocked(this, 'down')) {
+      this.reachedBottom = false;
+    } else {
+      this.reachedBottom = true;
+    }
+  }
+
+  this.moveRight = function() {
+    if (!model.isPathBlocked(this, 'right')) {
+      this.x += 1;
+    }
+    this.checkBottom();
+  };
+
+  this.moveLeft = function() {
+    if (!model.isPathBlocked(this, 'left')) {
+      this.x -= 1;
+    }
+    this.checkBottom();
+  };
+
+  this.drop = function() {
+    while (!model.isPathBlocked(this, 'down')) {
+      this.moveDown();
+    }
+  };
+
+  this.tic = function() {
+    this.checkBottom();
+    this.moveDown();
+  };
+}
+
+function Block(x, y, piece) {
   this.x = x;
   this.y = y;
+  this.piece = piece;
   this.reachedBottom = false;
 
   this.tic = function() {
