@@ -1,13 +1,23 @@
 var model = {
   blocks: [],
   pieces: [],
+
+
+  playSound: function() {
+    this.sounds[0].currentTime = 0;
+    this.sounds[0].play();
+  },
+
   shapes: ['leftL', 'rightL', 't', 'line', 'square', 'leftS', 'rightS'],
 
   init: function() {
+    this.audioFiles = ['meow5.mp3'];
+    this.sounds = [];
+    this.sounds.push(new Audio(this.audioFiles[0]));
     this.height = 20;
     this.width = 10;
 
-    this.addPiece(5, 0);
+    this.addPiece(5, -2);
   },
 
 
@@ -26,7 +36,7 @@ var model = {
     var bottomed = false;
 
     if (this.activePiece.reachedBottom) {
-      this.addPiece(5, 0);
+      this.addPiece(5, -2);
       bottomed = true;
     }
 
@@ -69,7 +79,8 @@ var model = {
     fullRows.forEach(function(index) {
       var blocks = _.filter(that.blocks, function(block) { return block.y == index});
       that.blocks = _.reject(that.blocks, function(block) { return block.y == index});
-      that.destroyBlocks(blocks)
+      that.destroyBlocks(blocks);
+        that.playSound();
     })
   },
 
@@ -107,6 +118,7 @@ var model = {
   },
 
   rotate: function() {
+    // this.playSound();
     this.activePiece.rotate();
   },
 
@@ -123,8 +135,10 @@ var model = {
   },
 
   drop: function() {
+    // this.playSound();
     this.activePiece.drop();
-    this.addPiece(5, 0);
+    this.checkClear();
+    this.addPiece(5, -2);
   },
 }
 
@@ -149,7 +163,7 @@ function Piece(x, y) {
       this.blocks.push(new Block(x, y + 1, this));
       this.blocks.push(new Block(x, y + 2, this));
       this.blocks.push(new Block(x - 1, y + 2, this));
-      this.color = "#88c431";
+      this.color = "#4444FF";
       break;
     case 't':
       this.blocks.push(new Block(x, y, this));
@@ -170,21 +184,21 @@ function Piece(x, y) {
       this.blocks.push(new Block(x + 1, y, this));
       this.blocks.push(new Block(x, y + 1, this));
       this.blocks.push(new Block(x + 1, y + 1, this));
-      this.color = "#151919";
+      this.color = "#880000";
       break;
     case 'leftS':
       this.blocks.push(new Block(x, y, this));
       this.blocks.push(new Block(x, y + 1, this));
       this.blocks.push(new Block(x + 1, y + 1, this));
       this.blocks.push(new Block(x + 1, y + 2, this));
-      this.color = "#cfed21";
+      this.color = "#FF0000";
       break;
     case 'rightS':
       this.blocks.push(new Block(x, y, this));
       this.blocks.push(new Block(x, y - 1, this));
       this.blocks.push(new Block(x + 1, y - 1, this));
       this.blocks.push(new Block(x + 1, y - 2, this));
-      this.color = "#214541";
+      this.color = "#00FF00";
       break;
     default:
       this.blocks.push(new Block(x, y, this));
