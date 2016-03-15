@@ -7,12 +7,13 @@ var model = {
 
     this.addBlock(4, 15);
     this.addBlock(4, 18);
-    this.addBlock(0, 0);
+    this.activeBlock = this.addBlock(0, 0);
   },
 
   addBlock: function(x, y) {
     var block = new Block(x, y);
     this.blocks.push(block);
+    return block;
   },
 
   tic: function() {
@@ -45,6 +46,14 @@ var model = {
       }
     })
     return occupied;
+  },
+
+  moveRight: function() {
+    this.activeBlock.x += 1;
+  },
+
+  moveLeft: function() {
+    this.activeBlock.x -= 1;
   }
 }
 

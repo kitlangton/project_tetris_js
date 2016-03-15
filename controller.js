@@ -3,6 +3,15 @@ var controller = {
     model.init();
     view.init();
     this.loop();
+
+    key('right', function() {
+      model.moveRight();
+      view.render();
+    });
+    key('left', function() {
+      model.moveLeft();
+      view.render();
+    });
   },
 
   loop: function() {
