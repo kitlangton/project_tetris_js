@@ -1,39 +1,36 @@
 var model = {
   blocks: [],
+  pieces: [],
 
   init: function() {
     this.height = 20;
     this.width = 10;
 
-    this.addBlock(1, 18);
-    this.addBlock(2, 18);
-    this.addBlock(3, 18);
-    this.addBlock(4, 18);
-    this.addBlock(5, 18);
-    this.addBlock(6, 18);
-    this.addBlock(7, 18);
-    this.addBlock(8, 18);
-    this.addBlock(9, 18);
-    this.addBlock(5, 0);
+    this.addPiece(5, 0);
   },
 
-  addBlock: function(x, y) {
-    var block = new Block(x, y);
-    this.blocks.push(block);
-    this.activeBlock = block;
-    return block;
+
+  addPiece: function(x, y) {
+    var piece = new Piece(x, y);
+    var that = this;
+    piece.blocks.forEach(function(block) {
+      that.blocks.push(block);
+    })
+    this.pieces.push(piece);
+    this.activePiece = piece;
+    return piece;
   },
 
   tic: function() {
     var bottomed = false;
 
-    if (this.activeBlock.reachedBottom) {
-      this.addBlock(5, 0);
+    if (this.activePiece.reachedBottom) {
+      this.addPiece(5, 0);
       bottomed = true;
     }
 
-    this.blocks.forEach(function(block) {
-      block.tic();
+    this.pieces.forEach(function(piece) {
+      piece.tic();
     });
 
     if (bottomed) {
@@ -69,11 +66,16 @@ var model = {
     })
 
     fullRows.forEach(function(index) {
+      var blocks = _.filter(that.blocks, function(block) { return block.y == index});
       that.blocks = _.reject(that.blocks, function(block) { return block.y == index});
+      that.destroyBlocks(blocks)
     })
   },
 
   destroyBlocks: function(blocks) {
+    blocks.forEach(function(block) {
+      block.piece.removeBlock(block);
+    })
   },
 
   nextCoordinate: function(coord, dir) {
@@ -94,8 +96,8 @@ var model = {
     var occupied = false;
     this.blocks.forEach(function(block){
       if (block.piece == piece) {
-        return; 
-      } 
+        return;
+      }
       if (block.x == coord.x && block.y == coord.y) {
         occupied = true;
       }
@@ -103,25 +105,29 @@ var model = {
     return occupied;
   },
 
+  rotate: function() {
+    this.activePiece.rotate();
+  },
+
   moveRight: function() {
-    this.activeBlock.moveRight();
+    this.activePiece.moveRight();
   },
 
   moveLeft: function() {
-    this.activeBlock.moveLeft();
+    this.activePiece.moveLeft();
   },
 
   moveDown: function() {
-    this.activeBlock.moveDown();
+    this.activePiece.moveDown();
   },
 
   drop: function() {
-    this.activeBlock.drop();
+    this.activePiece.drop();
+    this.addPiece(5, 0);
   },
 }
 
 function Piece(x, y) {
-
   this.blocks = [];
 
   this.blocks.push(new Block(x, y, this));
@@ -129,44 +135,97 @@ function Piece(x, y) {
   this.blocks.push(new Block(x, y + 2, this));
   this.blocks.push(new Block(x + 1, y + 2, this));
 
+  this.center = this.blocks[2];
 
   this.tic = function() {
     this.checkBottom();
     this.moveDown();
   };
 
+  this.rotate = function() {
+    var that = this;
+    var blocked = false;
+    var nextCoords = []
+    this.blocks.forEach(function(block) {
+      var x = block.x - that.center.x;
+      var y = block.y - that.center.y;
+
+      var newx = y * -1;
+      var newy = x;
+
+      var deltaX = newx - x
+      var deltaY = newy - y
+
+      var nextCoord = {}
+
+      nextCoord.x = block.x + deltaX;
+      nextCoord.y = block.y + deltaY;
+
+      nextCoords.push(nextCoord)
+
+      if (model.coordIsOccupied(nextCoord, block.piece) || model.coordIsOutOfBounds(nextCoord) ) {
+        blocked = true;
+      }
+    })
+
+    if (!blocked) {
+      this.blocks.forEach(function(block, index) {
+        var coord = nextCoords[index];
+        block.x = coord.x;
+        block.y = coord.y;
+      })
+    }
+  };
+
+  this.removeBlock = function(block) {
+    var index = this.blocks.indexOf(block);
+    this.blocks.splice(index, 1);
+  };
+
   this.moveDown = function() {
-    if (!model.isPathBlocked(this, 'down')) {
+    if (!this.isPathBlocked('down')) {
       this.blocks.forEach(function(block){
         block.moveDown();
       } )
     }
   };
 
+  this.isPathBlocked = function(direction) {
+    var blocked = false;
+    this.blocks.forEach(function(block) {
+      if (model.isPathBlocked(block, direction)) {
+        blocked = true;
+      }
+    });
+    return blocked;
+  };
+
   this.checkBottom = function() {
-    if (!model.isPathBlocked(this, 'down')) {
+    if (!this.isPathBlocked('down')) {
       this.reachedBottom = false;
     } else {
       this.reachedBottom = true;
     }
-  }
+  };
 
   this.moveRight = function() {
-    if (!model.isPathBlocked(this, 'right')) {
-      this.x += 1;
+    if (!this.isPathBlocked('right')) {
+      this.blocks.forEach(function(block){
+        block.moveRight();
+      } )
     }
-    this.checkBottom();
   };
 
   this.moveLeft = function() {
-    if (!model.isPathBlocked(this, 'left')) {
-      this.x -= 1;
+    if (!this.isPathBlocked('left')) {
+      this.blocks.forEach(function(block){
+        block.moveLeft();
+      } )
     }
-    this.checkBottom();
   };
 
   this.drop = function() {
-    while (!model.isPathBlocked(this, 'down')) {
+    while (!this.isPathBlocked('down')) {
       this.moveDown();
     }
   };
@@ -181,44 +240,20 @@ function Block(x, y, piece) {
   this.x = x;
   this.y = y;
   this.piece = piece;
-  this.reachedBottom = false;
-
   this.tic = function() {
     this.checkBottom();
     this.moveDown();
   };
 
   this.moveDown = function() {
-    if (!model.isPathBlocked(this, 'down')) {
-      this.y += 1;
-    }
+    this.y += 1;
   };
 
-  this.checkBottom = function() {
-    if (!model.isPathBlocked(this, 'down')) {
-      this.reachedBottom = false;
-    } else {
-      this.reachedBottom = true;
-    }
-  }
-
   this.moveRight = function() {
-    if (!model.isPathBlocked(this, 'right')) {
-      this.x += 1;
-    }
-    this.checkBottom();
+    this.x += 1;
   };
 
   this.moveLeft = function() {
-    if (!model.isPathBlocked(this, 'left')) {
-      this.x -= 1;
-    }
-    this.checkBottom();
-  };
-
-  this.drop = function() {
-    while (!model.isPathBlocked(this, 'down')) {
-      this.moveDown();
-    }
+    this.x -= 1;
   };
 }

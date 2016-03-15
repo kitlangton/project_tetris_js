@@ -16,6 +16,10 @@ var controller = {
       model.moveDown();
       view.render();
     });
+    key('up', function() {
+      model.rotate();
+      view.render();
+    });
     key('space', function() {
       model.drop();
       view.render();
