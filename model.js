@@ -22,16 +22,22 @@ var model = {
     });
   },
 
-  isPathBlocked: function(block) {
-    var coord = this.nextCoordinate(block.x, block.y);
+  isPathBlocked: function(block, dir) {
+    var coord = this.nextCoordinate(block, dir);
     if (this.coordIsOutOfBounds(coord) || this.coordIsOccupied(coord)) {
       return true
     }
     return false
   },
 
-  nextCoordinate: function(x, y) {
-    return {x: x, y: y + 1};
+  nextCoordinate: function(coord, dir) {
+    if (dir == 'down') {
+      return {x: coord.x, y: coord.y + 1};
+    } else if (dir == 'right') {
+      return {x: coord.x + 1, y: coord.y};
+    } else if (dir == 'left') {
+      return {x: coord.x - 1, y: coord.y};
+    }
   },
 
   coordIsOutOfBounds: function(coord) {
@@ -49,11 +55,11 @@ var model = {
   },
 
   moveRight: function() {
-    this.activeBlock.x += 1;
+    this.activeBlock.moveRight();
   },
 
   moveLeft: function() {
-    this.activeBlock.x -= 1;
+    this.activeBlock.moveLeft();
   }
 }
 
@@ -62,8 +68,22 @@ function Block(x, y) {
   this.y = y;
 
   this.tic = function() {
-    if (!model.isPathBlocked(this)) {
+    if (!model.isPathBlocked(this, 'down')) {
       this.y += 1;
+    }
+  };
+
+
+  this.moveRight = function() {
+    if (!model.isPathBlocked(this, 'right')) {
+      this.x += 1;
+    }
+  };
+
+
+  this.moveLeft = function() {
+    if (!model.isPathBlocked(this, 'left')) {
+      this.x -= 1;
     }
   };
 }
